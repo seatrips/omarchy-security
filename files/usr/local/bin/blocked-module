@@ -1,0 +1,14 @@
+#!/bin/bash
+# Called by modprobe for modules blocked in /etc/modprobe.d/blocked-protocols.conf.
+# Refuses the load, logs it and notifies the desktop user.
+mod=${1:-unknown}
+NOTIFY_USER=CHANGEME  # install.sh sets this to your user
+logger -t blocked-module -p auth.warning \
+  "Blocked kernel module $mod (unused network protocol, /etc/modprobe.d/blocked-protocols.conf)"
+uid=$(id -u "$NOTIFY_USER" 2>/dev/null)
+if [[ -n $uid && -S /run/user/$uid/bus ]]; then
+  timeout 5 runuser -u "$NOTIFY_USER" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+    notify-send -u normal -a "Security Watch" "Blocked network protocol: $mod" \
+    "A program tried to use $mod. It is blocked on purpose. If something you use needs it, delete its line from /etc/modprobe.d/blocked-protocols.conf" &
+fi
+exit 1
