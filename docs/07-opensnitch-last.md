@@ -1,26 +1,29 @@
-# 3. Firewalls: ufw for incoming, OpenSnitch for outgoing
+# 7. OpenSnitch, last: the firewall for outgoing traffic
 
-## ufw (incoming)
-
-Omarchy already turns ufw on: incoming connections are dropped, outgoing are allowed. Check it with `sudo ufw status verbose`.
-Only open a port when you need it, for example `sudo ufw allow 53317/tcp` for LocalSend, and remove it again with `sudo ufw delete allow 53317/tcp`.
+> **Install OpenSnitch last, when you have a few minutes to sit at the screen.**
+> Every program that goes online for the first time shows a popup. A popup you don't answer
+> within **30 seconds** becomes a **deny rule that lasts 12 hours**. Install it in the middle of
+> other setup (packages downloading, apps starting for the first time) and you miss popups.
+> Those programs then look broken for half a day, with no error that points to OpenSnitch.
+> So set up everything else first, then OpenSnitch, then stay and answer the first round of popups.
+> `install.sh` does it in that order and waits for you to press Enter.
 
 ## OpenSnitch (outgoing, per program)
 
-ufw lets every program go online. **OpenSnitch** asks the first time a program connects, so you see who is talking to the internet and decide.
+ufw (see [01-baseline-audit.md](01-baseline-audit.md)) only guards incoming traffic and lets every program go online. **OpenSnitch** asks the first time a program connects, so you see who is talking to the internet and decide.
+
+Order matters: install, copy the base rules (below), start the **popup UI first**, then the daemon.
 
 ```bash
 sudo pacman -S opensnitch
+echo 'o.launch_on_start("opensnitch-ui --background")' >> ~/.config/hypr/autostart.lua   # UI at every login
+setsid opensnitch-ui --background >/dev/null 2>&1 &                                     # UI now
 sudo systemctl enable --now opensnitchd
 ```
 
-Start the popup UI at login by adding this line to `~/.config/hypr/autostart.lua`:
-
-```lua
-o.launch_on_start("opensnitch-ui --background")
-```
-
 Without the UI running there are no popups, and new programs are denied silently.
+
+Then, still at the screen, run a first scan (`sudo systemctl start security-watch`) and answer **arch-audit's** popup with *Allow, always*. Security Watch needs it to download the Arch security list. Then open your usual apps one by one and answer each popup.
 
 ### Base rules
 

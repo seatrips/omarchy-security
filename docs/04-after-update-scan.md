@@ -1,4 +1,4 @@
-# 5. Scan after every update
+# 4. Scan after every update
 
 Updates are when things change: a new service gets enabled, a port opens, a config needs merging, a unit fails, a setting you hardened gets reset.
 So every update is followed by a full scan, automatically.
@@ -36,7 +36,7 @@ Install:
 sudo install -Dm644 files/etc/pacman.d/hooks/zz-security-watch.hook /etc/pacman.d/hooks/zz-security-watch.hook
 ```
 
-(Needs Security Watch from [04-security-watch.md](04-security-watch.md).)
+(Needs Security Watch from [03-security-watch.md](03-security-watch.md).)
 
 ## Manual: `./check.sh`
 

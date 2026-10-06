@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Installs every safety layer from this guide on an Omarchy (Arch) laptop:
 #   1. Bluetooth: mask Omarchy's auto-accept pairing agent
-#   2. OpenSnitch application firewall (asks before a program goes online)
+#   2. ufw firewall on for incoming traffic
 #   3. Security Watch: daily arch-audit + rkhunter, weekly lynis, health checks
 #   4. Post-update scan after every pacman transaction
 #   5. Kernel hardening (7 sysctl values) + ufw log_martians fix
 #   6. Unused network protocols blocked, with a notification if something needs one
+#   7. OpenSnitch application firewall, LAST: missed popups become 12-hour denies
 # Safe to run again: every file it replaces is backed up to *.bak.<timestamp> first.
 # Undo everything with ./uninstall.sh.
 set -euo pipefail
@@ -35,19 +36,9 @@ systemctl --user disable --now bt-agent.service 2>/dev/null || true
 systemctl --user mask bt-agent.service
 echo "    Pair devices with bluetui from now on; it asks first."
 
-echo "==> 2. ufw on (incoming dropped) and OpenSnitch"
+echo "==> 2. ufw on (incoming dropped)"
 sudo systemctl enable --now ufw
 sudo ufw --force enable >/dev/null
-for rule in $F/etc/opensnitchd/rules/*.json; do
-  sinstall 600 "$rule" "/etc/opensnitchd/rules/$(basename "$rule")"
-done
-sudo systemctl enable --now opensnitchd
-if ! grep -q 'opensnitch-ui' ~/.config/hypr/autostart.lua 2>/dev/null; then
-  mkdir -p ~/.config/hypr
-  [[ -e ~/.config/hypr/autostart.lua ]] && cp ~/.config/hypr/autostart.lua ~/.config/hypr/autostart.lua.bak.$ts
-  printf 'o.launch_on_start("opensnitch-ui --background")\n' >> ~/.config/hypr/autostart.lua
-fi
-pgrep -x opensnitch-ui >/dev/null || (setsid opensnitch-ui --background >/dev/null 2>&1 &)
 
 echo "==> 3. Security Watch (notifies $USER)"
 sinstall 644 $F/etc/rkhunter.conf.local /etc/rkhunter.conf.local
@@ -78,8 +69,35 @@ echo "==> 6. Block unused network protocols (DCCP, SCTP, RDS, TIPC)"
 sinstall_user $F/usr/local/bin/blocked-module /usr/local/bin/blocked-module
 sinstall 644 $F/etc/modprobe.d/blocked-protocols.conf /etc/modprobe.d/blocked-protocols.conf
 
+echo "==> 7. OpenSnitch application firewall: LAST on purpose"
+cat <<'MSG'
+
+    OpenSnitch asks before any program goes online. A popup you don't answer
+    within 30 seconds becomes a DENY rule that lasts 12 hours, and that program
+    then looks broken. That's why it comes last: nothing else is installing now.
+
+    Have a few minutes and stay at the screen. Popups will come right away
+    (arch-audit for the first scan, then your browser, mail, chat...).
+    Allow programs you know. Details: docs/07-opensnitch-last.md
+
+MSG
+read -rp "    Press Enter to start OpenSnitch now, or Ctrl+C to do it later... "
+for rule in $F/etc/opensnitchd/rules/*.json; do
+  sinstall 600 "$rule" "/etc/opensnitchd/rules/$(basename "$rule")"
+done
+if ! grep -q 'opensnitch-ui' ~/.config/hypr/autostart.lua 2>/dev/null; then
+  mkdir -p ~/.config/hypr
+  [[ -e ~/.config/hypr/autostart.lua ]] && cp ~/.config/hypr/autostart.lua ~/.config/hypr/autostart.lua.bak.$ts
+  printf 'o.launch_on_start("opensnitch-ui --background")\n' >> ~/.config/hypr/autostart.lua
+fi
+# The UI first: without it there are no popups and every new program is denied.
+pgrep -x opensnitch-ui >/dev/null || (setsid opensnitch-ui --background >/dev/null 2>&1 &)
+sleep 3
+sudo systemctl enable --now opensnitchd
+# First scan now, while you're watching: answer arch-audit's popup with "Allow, always".
+sudo systemctl start --no-block security-watch
+
 echo
 echo "Done. Next:"
-echo "  - First scan now:   sudo systemctl start security-watch   (log: /var/log/security-watch.log)"
-echo "  - Check all layers: ./check.sh"
-echo "  - Read docs/03-opensnitch.md before you get your first popups."
+echo "  - Answer the OpenSnitch popups now (arch-audit first)."
+echo "  - Check all layers: ./check.sh   (scan log: /var/log/security-watch.log)"

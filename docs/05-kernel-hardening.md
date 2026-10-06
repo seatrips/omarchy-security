@@ -1,4 +1,4 @@
-# 6. Kernel hardening
+# 5. Kernel hardening
 
 Lynis test KRNL-6000 suggests about 11 kernel settings. Seven of them are safe on a desktop and have no visible effect; they close common exploit aids.
 

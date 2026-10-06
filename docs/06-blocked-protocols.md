@@ -1,4 +1,4 @@
-# 7. Unused network protocols blocked
+# 6. Unused network protocols blocked
 
 The Linux kernel loads protocol modules on demand: any program can open a DCCP, SCTP, RDS or TIPC socket and the module loads itself.
 A laptop never uses these, and they have a history of kernel bugs reachable by normal users. Lynis test NETW-3200 suggests blocking them.

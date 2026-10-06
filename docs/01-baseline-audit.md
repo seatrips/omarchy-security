@@ -23,6 +23,11 @@ Before changing anything, check what Omarchy already gives you. Every command he
 - **avahi-daemon** (UDP 5353) answers local-network discovery. It is needed for finding printers. If you never print, you can disable it; if you do, leave it.
 - **Secure Boot** is often unsupported on laptops running Linux. Disk encryption still protects your data if the laptop is stolen while it is off.
 
+## Firewall for incoming traffic: ufw
+
+Omarchy already turns ufw on: incoming connections are dropped, outgoing are allowed. Check it with `sudo ufw status verbose`.
+Only open a port when you need it, for example `sudo ufw allow 53317/tcp` for LocalSend, and remove it again with `sudo ufw delete allow 53317/tcp`.
+
 ## Deeper scan: Lynis
 
 ```bash

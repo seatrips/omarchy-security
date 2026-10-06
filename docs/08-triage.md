@@ -31,4 +31,4 @@ sudo tail -40 /var/log/security-watch.log
 
 ## An app suddenly can't connect
 
-Almost always OpenSnitch: you missed its popup and it's now denied for 12 hours. OpenSnitch → **Rules** → delete that app's deny rule → restart the app → allow it in the popup. See [03-opensnitch.md](03-opensnitch.md).
+Almost always OpenSnitch: you missed its popup and it's now denied for 12 hours. OpenSnitch → **Rules** → delete that app's deny rule → restart the app → allow it in the popup. See [07-opensnitch-last.md](07-opensnitch-last.md).

@@ -1,4 +1,4 @@
-# 4. Security Watch: daily scans
+# 3. Security Watch: daily scans
 
 A small script (`files/usr/local/bin/security-watch`) run by a systemd timer. It scans and **only notifies for findings it hasn't reported before**.
 
