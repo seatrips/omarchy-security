@@ -114,6 +114,26 @@ Each doc also has an **Undo** section for its own layer.
 - It doesn't turn on Secure Boot or turn off autologin. Omarchy logs you in automatically after the disk password, so **the LUKS disk password is your login.** Pick a strong one.
 - It doesn't send anything anywhere. All scans run locally; results stay in `/var/log/security-watch.log`.
 
+## Credits
+
+This guide only connects existing tools; the real work is done by their authors. Thank you:
+
+| Project | By | Used for |
+|---|---|---|
+| [Omarchy](https://github.com/basecamp/omarchy) | David Heinemeier Hansson (DHH), Basecamp and contributors | the system this guide builds on |
+| [Arch Linux](https://archlinux.org) and the [Arch Security Team](https://security.archlinux.org) | the Arch Linux community | packages, signed updates and the security advisories arch-audit reads |
+| [Hyprland](https://hyprland.org) | Vaxry and contributors | the desktop; starts the OpenSnitch UI at login |
+| [OpenSnitch](https://github.com/evilsocket/opensnitch) | Simone Margaritelli (evilsocket), maintained by Gustavo Iñiguez Goya and contributors | outgoing application firewall |
+| [ufw](https://launchpad.net/ufw) | Canonical and contributors | incoming firewall |
+| [Rootkit Hunter (rkhunter)](https://rkhunter.sourceforge.net) | the rkhunter project | rootkit and changed-file scan |
+| [Lynis](https://github.com/CISOfy/lynis) | Michael Boelen and CISOfy | weekly hardening audit; the KRNL-6000 and NETW-3200 suggestions behind layers 4 and 5 |
+| [arch-audit](https://gitlab.archlinux.org/archlinux/arch-audit) | Andrea Scarpino and the Arch Linux team | finds installed packages with known vulnerabilities |
+| [bluetui](https://github.com/pythops/bluetui) | pythops | Bluetooth pairing that asks first |
+| [systemd](https://systemd.io), [libnotify](https://gitlab.gnome.org/GNOME/libnotify), [pacman](https://gitlab.archlinux.org/pacman/pacman) | their authors | timer, desktop notifications, post-update hooks |
+| [Linux kernel documentation](https://docs.kernel.org/admin-guide/sysctl/) | the kernel developers | what each hardening setting does |
+
+Each tool keeps its own license; this repo contains none of their code, only configuration and small scripts that call them.
+
 ## Contributing
 
 Found a false positive, a mistake, or something that works differently on your Omarchy? Open an issue or a pull request.
