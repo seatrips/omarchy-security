@@ -40,7 +40,7 @@ sudo systemctl start security-watch   # first run
 
 `files/etc/rkhunter.conf.local` whitelists things that are normal on Arch/Omarchy: `egrep`/`fgrep`/`ldd` being shell scripts, two hidden Kerberos man pages, `/etc/.updated`, EasyEffects' shared memory in `/dev/shm`, and the sshd checks (sshd is off).
 
-`files/etc/lynis/custom.prf` skips PKGS-7322 (vulnerable packages *without* a fix yet): you can't act on those, and arch-audit already reports the moment a fix exists.
+`files/etc/lynis/custom.prf` skips PKGS-7322, Lynis's own arch-audit check. It warns about every vulnerable package, including those with **no fix yet**, which you can't act on. Security Watch runs `arch-audit --upgradable` instead, which reports the moment a fix exists.
 
 Whitelist a new warning **only after you've checked it**: see [08-triage.md](08-triage.md).
 

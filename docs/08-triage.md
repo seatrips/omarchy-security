@@ -14,9 +14,9 @@ sudo tail -40 /var/log/security-watch.log
 | **Lynis security warning** | a new hardening warning | `sudo lynis show details <TEST-ID>` |
 | **System check warning: Failed service** | a service failed | `systemctl status <name>`, `journalctl -u <name> -b` |
 | **Config needs merging** | an update shipped a new default config next to yours (`.pacnew`) | compare with `diff`, merge what's new, delete the `.pacnew` |
-| **Listening on network** | a program opened a TCP port reachable from outside | find the program in the message; if you didn't expect it, stop/disable it. ufw still drops incoming, so it isn't exposed yet |
+| **Listening on network** | a program opened a TCP port reachable from outside | find the program in the message; if you didn't expect it, stop or disable it. ufw drops it from outside **unless** ufw has a rule for that port (`sudo ufw status`; Omarchy allows 53317 for LocalSend) |
 | **Passwordless sudo** | a new NOPASSWD rule appeared | a rule for **one specific command** from Omarchy is normal; `ALL` is not: find which package or person added it |
-| **Firewall (ufw) is not active** / **OpenSnitch is not running** | a firewall is off | `sudo systemctl enable --now ufw` / `opensnitchd` |
+| **Firewall (ufw) is not active** / **OpenSnitch is not running** | a firewall is off | `sudo systemctl enable --now ufw` / `sudo systemctl enable --now opensnitchd` |
 | **sshd is enabled** | the SSH server will start at boot | `sudo systemctl disable --now sshd` unless you need it |
 | **bt-agent … no longer masked** | an update brought Bluetooth auto-accept back | `systemctl --user mask bt-agent.service` |
 | **Blocked network protocol: X** | a program tried to use a blocked protocol | if you know and need that program, delete its line in `/etc/modprobe.d/blocked-protocols.conf` |

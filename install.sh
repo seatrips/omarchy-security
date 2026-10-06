@@ -37,7 +37,7 @@ sudo pacman -S --needed --noconfirm ufw opensnitch rkhunter lynis arch-audit lib
 echo "==> 1. Bluetooth: stop auto-accepting pairing requests"
 systemctl --user disable --now bt-agent.service 2>/dev/null || true
 systemctl --user mask bt-agent.service
-echo "    Pair devices with bluetui from now on; it asks first."
+echo "    Pair devices that need a PIN or confirmation with bluetoothctl in a terminal (docs/02-bluetooth.md)."
 
 echo "==> 2. ufw on (incoming dropped)"
 sudo systemctl enable --now ufw
@@ -93,7 +93,7 @@ if ! grep -q 'opensnitch-ui' ~/.config/hypr/autostart.lua 2>/dev/null; then
   [[ -e ~/.config/hypr/autostart.lua ]] && cp ~/.config/hypr/autostart.lua ~/.config/hypr/autostart.lua.bak.$ts
   printf 'o.launch_on_start("opensnitch-ui --background")\n' >> ~/.config/hypr/autostart.lua
 fi
-# The UI first: without it there are no popups and every new program is denied.
+# Without the UI there are no popups and the daemon allows everything (DefaultAction).
 pgrep -x opensnitch-ui >/dev/null || (setsid opensnitch-ui --background >/dev/null 2>&1 &)
 sleep 3
 sudo systemctl enable --now opensnitchd

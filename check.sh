@@ -13,7 +13,7 @@ echo "== Safety layers"
 lsblk -o TYPE | grep -q crypt && ok "Disk is encrypted (LUKS)" || bad "No encrypted disk found"
 systemctl is-active -q ufw && ok "ufw firewall active" || bad "ufw is not active"
 systemctl is-active -q opensnitchd && ok "OpenSnitch running" || bad "OpenSnitch is not running"
-pgrep -x opensnitch-ui >/dev/null && ok "OpenSnitch popups (UI) running" || bad "opensnitch-ui is not running: no popups, new programs get denied silently"
+pgrep -x opensnitch-ui >/dev/null && ok "OpenSnitch popups (UI) running" || bad "opensnitch-ui is not running: no popups, and OpenSnitch allows everything"
 systemctl is-enabled -q sshd 2>/dev/null && bad "sshd is enabled" || ok "sshd off"
 [[ $(readlink ~/.config/systemd/user/bt-agent.service) == /dev/null ]] \
   && ok "Bluetooth auto-accept masked" || bad "bt-agent (Bluetooth auto-accept) is not masked"

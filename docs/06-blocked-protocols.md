@@ -30,7 +30,8 @@ sudo sed -i "s/^NOTIFY_USER=.*/NOTIFY_USER=$USER/" /usr/local/bin/blocked-module
 sudo install -Dm644 files/etc/modprobe.d/blocked-protocols.conf /etc/modprobe.d/blocked-protocols.conf
 ```
 
-Test: `python3 -c 'import socket; socket.socket(socket.AF_INET, socket.SOCK_STREAM, 132)'` (132 = SCTP) should fail and show the notification.
+Test: `python3 -c 'import socket; socket.socket(socket.AF_INET, socket.SOCK_STREAM, 132)'` (132 = SCTP) should fail with `Protocol not supported`, show the notification and add a line to `journalctl -t blocked-module`.
+Already loaded modules aren't affected until reboot (check with `lsmod | grep -E 'dccp|sctp|rds|tipc'`).
 
 ## Allow one again
 

@@ -39,9 +39,9 @@ sudo ufw reload
 | Setting | Why not |
 |---|---|
 | `kernel.modules_disabled=1` | no module can load after boot: USB devices, WiFi adapters and VPNs that need a module would stop working |
-| `kernel.sysrq=0` | Omarchy already sets a safer value; SysRq is useful to recover a frozen system |
-| `net.ipv4.ip_forward=0` | Docker and VPN tools need forwarding |
-| `kernel.unprivileged_bpf_disabled` | already restricted by default on Arch |
+| `kernel.sysrq=0` | systemd's default (`16`) already allows only the "sync disks" key, which is useful when the system freezes |
+| `net.ipv4.conf.all.forwarding=0` | already 0; Docker switches it on when it starts, and its networking needs that |
+| `kernel.unprivileged_bpf_disabled=1` | Arch already sets `2` (unprivileged BPF off); `1` only makes it impossible to change until reboot |
 
 ## Undo
 

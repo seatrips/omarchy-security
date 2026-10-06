@@ -16,8 +16,8 @@ Nothing here depends on a specific laptop.
 ## Why this guide exists
 
 **Not because Omarchy is unsafe.** Omarchy starts from a good place: full-disk encryption, a firewall that
-drops incoming traffic, no SSH server, signed packages and fast security updates from Arch. For most people
-that's already more secure than a typical laptop.
+drops incoming traffic, no SSH server, signed packages, fast security updates from Arch, and careful choices like *not* putting you in the
+`docker` group and making Bluetooth pairable only while you're pairing.
 
 We use our laptop for private life *and* work: online banking, email, work files. For that we wanted it
 **as safe as reasonably possible**, not just "safe by default". So we asked a few questions that no default
@@ -28,20 +28,21 @@ install can answer for you:
 - **Would I notice if something changed?** A secure system on day one can drift: an update enables a
   service, opens a port, ships a new config, or brings back a setting you turned off. Security Watch checks
   every day and **after every update**, and tells you only when something new needs your attention.
-- **Can the defaults be a bit tighter without breaking anything?** Omarchy is a desktop for everyone, so it
-  makes convenient choices, like accepting Bluetooth pairing without asking. We tightened only things that don't change
-  how you use the laptop: Bluetooth asks first, a few kernel settings make exploits harder, and unused network
-  protocols are off.
+- **Can the defaults be a bit tighter?** Omarchy is a desktop for everyone, so some defaults favour convenience,
+  like accepting a Bluetooth pairing without showing a code. We tightened a few things that cost little in daily
+  use: Bluetooth pairing shows a confirmation, a few kernel settings make exploits harder, and unused network
+  protocols are off. Each page says what it can affect.
 - **Would I know what to do?** Every alert has a plain explanation and a fix in [docs/08-triage.md](docs/08-triage.md).
 
 The rules we followed:
 
 1. **Check before changing.** Audit first, then change only what has a clear reason.
-2. **Nothing may break silently.** Where a change could block something (OpenSnitch, the protocol block),
-   you get a notification that says what happened and how to undo it.
+2. **Nothing should break silently.** Where a change could block something, you get a notification that says
+   what happened and how to undo it. The one exception is a missed OpenSnitch popup, which is why OpenSnitch
+   comes last and has its own warning.
 3. **Quiet unless action is needed.** No daily noise: an alert means "look at this".
 4. **Everything can be undone.** Every page ends with an Undo section.
-5. **Nothing leaves the laptop.** All scans run locally.
+5. **Nothing is uploaded.** All scans run on your laptop. The only download is arch-audit fetching Arch's public security list.
 
 Security is layers: no single tool here is perfect, but together they make problems much more likely to be
 stopped or noticed early. This repo shares what we learned so other Omarchy users know what's possible and can choose for themselves.
@@ -51,7 +52,7 @@ stopped or noticed early. This repo shares what we learned so other Omarchy user
 | # | Layer | What it protects against | Guide |
 |---|---|---|---|
 | 0 | Baseline audit + ufw firewall for incoming traffic | Knowing where you stand: disk encryption, open ports, sudo, ssh | [docs/01-baseline-audit.md](docs/01-baseline-audit.md) |
-| 1 | Bluetooth pairing asks first | Strangers nearby pairing a device without asking | [docs/02-bluetooth.md](docs/02-bluetooth.md) |
+| 1 | Bluetooth pairing asks first | A wrong device (for example a fake keyboard) slipping in while you pair | [docs/02-bluetooth.md](docs/02-bluetooth.md) |
 | 2 | Security Watch: daily scans | Vulnerable packages, rootkits, tampered system files, weak settings | [docs/03-security-watch.md](docs/03-security-watch.md) |
 | 3 | **Scan after every update** | New services, open ports, broken configs or failed units that an update brings in | [docs/04-after-update-scan.md](docs/04-after-update-scan.md) |
 | 4 | Kernel hardening | Common exploit aids (kernel address leaks, FIFO/file tricks, setuid core dumps) | [docs/05-kernel-hardening.md](docs/05-kernel-hardening.md) |
@@ -74,7 +75,14 @@ The idea: **quiet unless action is needed.** You get a desktop notification only
      > what's already in place and what's missing. Then explain what each missing layer would change on my machine
      > before you change anything. Do OpenSnitch last.*
    - **Scripts as reference:** `install.sh`, `uninstall.sh` and `files/` are what we ran on our own machine.
-     Read them before running anything; on a different Omarchy version or hardware, paths and defaults can differ.
+     On a different Omarchy version or hardware, paths and defaults can differ.
+
+> [!TIP]
+> **Never run an install script you haven't checked, including ours.** A script that uses `sudo` can change
+> anything on your system. If you can't read shell scripts yourself, hand it to your AI assistant first:
+> *"Review this script before I run it. What does it change, what does it download, does it send anything anywhere,
+> and does it fit my system?"* Do the same for any `curl ... | bash` line you find online. This is a safety
+> habit in itself.
 4. **Verify:** `./check.sh` is read-only and safe to run anywhere. It shows which layers are on and what changed since your last update.
 
 > [!IMPORTANT]
@@ -106,12 +114,42 @@ install.sh        reference: how we put it all together (OpenSnitch last; backs 
 uninstall.sh      reference: removes it again
 ```
 
-## Daily use
+## See it working: popups and notifications
 
-- **Notification "Post-update scan: all clear"** after an update: nothing to do.
-- **Any other Security Watch notification:** read `sudo tail -40 /var/log/security-watch.log`, then [docs/08-triage.md](docs/08-triage.md).
-- **OpenSnitch popup:** a program wants to go online. Allow it only if you know the program and why it needs the network. An app that suddenly can't connect is almost always a missed popup: delete its deny rule in OpenSnitch → Rules.
-- **After you update**, run `./check.sh` too if you want to see the full picture yourself.
+You'll **see** these layers at work. The popups and notifications are your proof that they're running:
+
+| You see | From | Means | What to do |
+|---|---|---|---|
+| A popup: *"<program> wants to connect to <host>"* | OpenSnitch | a program goes online for the first time | allow it if you know the program and why it needs the network; otherwise deny |
+| *"Post-update scan: all clear"* | Security Watch | the scan after your update found nothing new | nothing: this is the "it works" sign after every update |
+| *"Security updates available"*, *"Rootkit Hunter warning"*, *"System check warning"*, … | Security Watch | something new needs a look | `sudo tail -40 /var/log/security-watch.log`, then [docs/08-triage.md](docs/08-triage.md) |
+| *"Blocked network protocol: sctp"* | protocol block | a program tried to use a blocked protocol | only if you need that program: delete its line, see [docs/06](docs/06-blocked-protocols.md) |
+| A Bluetooth passkey to confirm | `bluetoothctl` | a device wants to pair | say yes only if the code matches the device you're pairing |
+
+The rest of the time it stays quiet: Security Watch never repeats a finding it already showed you.
+
+**Want to see it right now?** Each test is harmless:
+
+```bash
+# Security Watch + the post-update notification (runs a full scan, takes a few minutes)
+sudo touch /var/lib/security-watch/after-update && sudo systemctl start security-watch
+# -> "Post-update scan: all clear" (or the findings)
+
+# Protocol block
+python3 -c 'import socket; socket.socket(socket.AF_INET, socket.SOCK_STREAM, 132)'
+# -> fails with "Protocol not supported" and shows "Blocked network protocol: sctp"
+
+# OpenSnitch: a program it hasn't seen before
+curl -sI https://archlinux.org >/dev/null
+# -> a popup for curl (unless you already have a rule for it). Answer it, or curl is blocked for 12 hours.
+
+# Everything at once, read-only
+./check.sh
+```
+
+No popups at all from OpenSnitch? Then its UI isn't running, and without the UI it lets **everything** through. Start it with `opensnitch-ui --background`.
+
+**An app suddenly can't connect?** Almost always a missed OpenSnitch popup. Delete that app's deny rule in OpenSnitch → Rules.
 
 ## Undo
 
@@ -121,7 +159,7 @@ Each doc has an **Undo** section for its own layer. `uninstall.sh` shows how we 
 
 - It is no replacement for updates. Update often (`omarchy update`); Security Watch tells you when a security fix is waiting.
 - It doesn't turn on Secure Boot or turn off autologin. Omarchy logs you in automatically after the disk password, so **the LUKS disk password is your login.** Pick a strong one.
-- It doesn't send anything anywhere. All scans run locally; results stay in `/var/log/security-watch.log`.
+- It doesn't upload anything. All scans run locally; results stay in `/var/log/security-watch.log`.
 
 ## Credits
 
@@ -137,7 +175,7 @@ This guide only connects existing tools; the real work is done by their authors.
 | [Rootkit Hunter (rkhunter)](https://rkhunter.sourceforge.net) | the rkhunter project | rootkit and changed-file scan |
 | [Lynis](https://github.com/CISOfy/lynis) | Michael Boelen and CISOfy | weekly hardening audit; the KRNL-6000 and NETW-3200 suggestions behind layers 4 and 5 |
 | [arch-audit](https://gitlab.archlinux.org/archlinux/arch-audit) | Andrea Scarpino and the Arch Linux team | finds installed packages with known vulnerabilities |
-| [bluetui](https://github.com/pythops/bluetui) | pythops | Bluetooth pairing that asks first |
+| [BlueZ](https://www.bluez.org) | the BlueZ project | Linux Bluetooth; `bluetoothctl` for pairing that asks first |
 | [systemd](https://systemd.io), [libnotify](https://gitlab.gnome.org/GNOME/libnotify), [pacman](https://gitlab.archlinux.org/pacman/pacman) | their authors | timer, desktop notifications, post-update hooks |
 | [Linux kernel documentation](https://docs.kernel.org/admin-guide/sysctl/) | the kernel developers | what each hardening setting does |
 

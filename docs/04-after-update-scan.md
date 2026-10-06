@@ -59,7 +59,7 @@ It shows:
 ## Doing it fully by hand
 
 ```bash
-grep -A200 "$(grep 'transaction started' /var/log/pacman.log | tail -1 | cut -c1-26)" /var/log/pacman.log | grep -iE 'warn|error'
+tac /var/log/pacman.log | sed '/transaction started/q' | tac | grep -iE 'warning|error'
 systemctl --failed; systemctl --user --failed
 arch-audit --upgradable
 find /etc -name '*.pacnew' -o -name '*.pacsave'

@@ -12,7 +12,7 @@ The tools above catch problems. These habits prevent them.
 ## Installing software
 
 - Prefer the official repos (`pacman`) over the AUR. For an AUR package, read its PKGBUILD before building.
-- `curl ... | bash`: read the script first.
+- Never run a script you haven't checked: `curl ... | bash` lines, AUR PKGBUILDs, install scripts from GitHub (this repo's too). Read it, or give it to your AI assistant first and ask what it changes, what it downloads and whether it sends anything out. Run it only when you understand the answer.
 - A new app gets an OpenSnitch popup the first time it goes online. Allow it per program and, for interpreters (python, node), per script and host. Never allow an interpreter everywhere.
 - Closed-source apps that talk to their vendor's servers: know what they send before you allow them.
 - Remove what you no longer use (`pacman -Rns`) and clean orphans (`pacman -Qdtq`).
@@ -20,7 +20,7 @@ The tools above catch problems. These habits prevent them.
 ## Services and ports
 
 - Keep sshd off unless you need it.
-- Don't join the `docker` group (it gives root without a password). If you don't use Docker, disable it.
+- Don't join the `docker` group (it gives root without a password). Omarchy enables Docker's socket; if you don't use Docker, `sudo systemctl disable --now docker.socket docker.service`.
 - Open ufw ports only while you need them.
 
 ## Secrets and git
@@ -32,5 +32,5 @@ The tools above catch problems. These habits prevent them.
 ## Physical
 
 - A strong LUKS password (it's also your login, because of autologin).
-- Lock the screen when you walk away (Omarchy menu → System → Lock).
+- Lock the screen when you walk away: **Super + Ctrl + L** (or Omarchy menu → System → Lock).
 - Accept Bluetooth pairing only for devices you're pairing right now.
