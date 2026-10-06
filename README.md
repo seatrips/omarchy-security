@@ -1,9 +1,13 @@
 # Omarchy Security Guide
 
-How to make an [Omarchy](https://omarchy.org) laptop as safe as possible for private and work use, and keep it that way.
-It covers what was checked, what was changed and why, and an automatic security scan that runs after every update.
+What you can add to an [Omarchy](https://omarchy.org) laptop to make it as safe as possible for private and work use, and why.
+It covers what we checked, what we added and why, and a security scan that runs after every update.
 
-It works on any Omarchy install (Arch Linux + Hyprland), on any hardware.
+**This is an awareness guide, not an installer.** It shows *what* is worth adding and *why*, so you can
+decide what fits you. *How* to install it depends on your hardware and Omarchy version, and we can't test
+every combination. Use the commands and example files here as a reference: do it by hand, or let your
+AI assistant (Claude, or any other) adapt them to your system. See [How to use this guide](#how-to-use-this-guide).
+
 Nothing here depends on a specific laptop.
 
 > **Safety first, convenience second.** Every change below was made only after checking what it breaks.
@@ -40,7 +44,7 @@ The rules we followed:
 5. **Nothing leaves the laptop.** All scans run locally.
 
 Security is layers: no single tool here is perfect, but together they make problems much more likely to be
-stopped or noticed early. This repo is how we did it, shared so other Omarchy users can do the same.
+stopped or noticed early. This repo shares what we learned so other Omarchy users know what's possible and can choose for themselves.
 
 ## The layers
 
@@ -58,31 +62,37 @@ stopped or noticed early. This repo is how we did it, shared so other Omarchy us
 
 The idea: **quiet unless action is needed.** You get a desktop notification only for a *new* finding, plus a short "all clear" after each update.
 
-## Quick start
+## How to use this guide
+
+1. **Read** the "Why" above and the [layers](#the-layers). Each doc page explains the risk, the fix and its trade-offs.
+2. **Decide** which layers you want. They are independent; take one, some or all.
+   Things you rely on (printing, Docker, a VPN, a USB WiFi adapter) may change your choices: each page says what a layer could affect.
+3. **Apply it your way:**
+   - **By hand:** every doc page shows the commands and has an **Undo** section.
+   - **With an AI assistant:** point it at this repo and let it check your system first. For example:
+     > *Read https://github.com/seatrips/omarchy-security. Check my Omarchy system against each layer and tell me
+     > what's already in place and what's missing. Then explain what each missing layer would change on my machine
+     > before you change anything. Do OpenSnitch last.*
+   - **Scripts as reference:** `install.sh`, `uninstall.sh` and `files/` are what we ran on our own machine.
+     Read them before running anything; on a different Omarchy version or hardware, paths and defaults can differ.
+4. **Verify:** `./check.sh` is read-only and safe to run anywhere. It shows which layers are on and what changed since your last update.
 
 > [!IMPORTANT]
-> **Install OpenSnitch last, and stay at the screen when you do.** It shows a popup for every program
-> that goes online for the first time. A popup you miss for 30 seconds becomes a **deny rule for 12 hours**,
-> and that program looks broken with no clue why. `install.sh` sets up OpenSnitch as the very last step and
-> waits for you to press Enter. Then answer the popups (arch-audit first).
+> **Whatever way you choose: install OpenSnitch last, and stay at the screen when you do.** It shows a popup for
+> every program that goes online for the first time. A popup you miss for 30 seconds becomes a **deny rule for 12 hours**,
+> and that program looks broken with no clue why. Set up everything else first, then OpenSnitch, then answer the popups
+> (arch-audit first, so the security scan can check for updates).
 
-```bash
-git clone https://github.com/seatrips/omarchy-security ~/omarchy-security
-cd ~/omarchy-security
-less install.sh        # read it first: it uses sudo
-./install.sh           # installs every layer, OpenSnitch last; backs up any file it replaces
-./check.sh             # read-only status of every layer
-```
-
-`install.sh` is safe to run again. You can also do every step by hand: each doc shows the exact commands.
+> [!NOTE]
+> **Tested on:** our own machines with Omarchy 4.0.x (October 2026). Not tested on other hardware or versions.
+> The *ideas* apply to every Omarchy install; check the details before you apply them.
 
 ## What's in the repo
 
 ```
-install.sh        installs all layers (backs up replaced files to *.bak.<timestamp>)
-uninstall.sh      removes them again
+docs/             the guide: one page per layer (start here)
 check.sh          read-only: is every layer on, and did the last update leave problems?
-files/            the exact files that get installed, at their system paths
+files/            reference copies of the files we installed, at their system paths
   usr/local/bin/security-watch          the scanner
   usr/local/bin/blocked-module          refuses + reports blocked protocols
   etc/systemd/system/security-watch.*   daily timer
@@ -92,7 +102,8 @@ files/            the exact files that get installed, at their system paths
   etc/rkhunter.conf.local               known false positives
   etc/lynis/custom.prf                  lynis profile
   etc/opensnitchd/rules/*.json          3 base allow rules (local DNS, resolver, clock)
-docs/             the guide, one page per layer
+install.sh        reference: how we put it all together (OpenSnitch last; backs up replaced files)
+uninstall.sh      reference: removes it again
 ```
 
 ## Daily use
@@ -104,9 +115,7 @@ docs/             the guide, one page per layer
 
 ## Undo
 
-`./uninstall.sh` removes the scanner, the hooks, the kernel settings and the protocol block, and turns OpenSnitch off.
-Bluetooth auto-accept stays off unless you turn it back on (the script prints how). Reboot afterwards.
-Each doc also has an **Undo** section for its own layer.
+Each doc has an **Undo** section for its own layer. `uninstall.sh` shows how we undo all of them at once.
 
 ## What this does *not* do
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# REFERENCE, not a one-click installer: this is what we ran on our own machine
+# (Omarchy 4.0.x). Other hardware or Omarchy versions can differ. Read it first,
+# or let your AI assistant check your system and adapt it. See README.md.
 # Removes what install.sh added. Leaves the packages and ufw installed
 # (ufw is part of Omarchy). Reboot afterwards so the sysctl values reset.
 set -uo pipefail

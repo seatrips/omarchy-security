@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# REFERENCE, not a one-click installer: this is what we ran on our own machine
+# (Omarchy 4.0.x). Other hardware or Omarchy versions can differ. Read it first,
+# or let your AI assistant check your system and adapt it. See README.md.
 # Installs every safety layer from this guide on an Omarchy (Arch) laptop:
 #   1. Bluetooth: mask Omarchy's auto-accept pairing agent
 #   2. ufw firewall on for incoming traffic
